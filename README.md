@@ -25,12 +25,27 @@ My personal blog where I write about software development, technology, and other
 
 ## Writing & Publishing
 
-Posts are written in Notion and automatically synced to the repository:
+Posts are written in Notion and fetched directly during build:
 
 1. Write posts in Notion database
 2. Set Status to "Published" when ready
-3. Run "Sync from Notion" workflow in GitHub Actions
-4. Vercel automatically deploys the changes
+3. Trigger a deployment (Vercel auto-deploys on git push, or manually trigger)
+4. Blog fetches content directly from Notion API during build
+
+**Note:** No markdown files are stored in this repository. All content lives in Notion and is fetched at build time.
+
+## Setup
+
+### Environment Variables
+
+Create a `.env.local` file with:
+
+```env
+NOTION_SECRET=your_notion_integration_token
+NOTION_DATABASE=your_database_id
+```
+
+For Vercel deployment, add these as environment variables in your project settings.
 
 ## License
 

@@ -3,17 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "predev": "mkdir -p public/images/posts && cp -r posts/images/* public/images/posts/ 2>/dev/null || true",
     "dev": "next dev",
-    "prebuild": "bash scripts/setup-content.sh",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
+    "@notionhq/client": "^5.3.0",
     "date-fns": "^4.1.0",
     "gray-matter": "^4.0.3",
     "next": "16.0.1",
+    "notion-to-md": "^3.1.9",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "remark": "^15.0.1",
