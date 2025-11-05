@@ -1,5 +1,6 @@
 import { getPostData, getAllPostIds } from '@/lib/posts';
 import { format } from 'date-fns';
+import PostContent from '@/components/PostContent';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -38,10 +39,7 @@ export default async function Post({ params }: PageProps) {
         )}
       </header>
 
-      <div
-        className="prose prose-lg max-w-none"
-        dangerouslySetInnerHTML={{ __html: post.content || '' }}
-      />
+      <PostContent content={post.content || ''} />
     </article>
   );
 }
