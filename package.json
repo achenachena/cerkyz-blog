@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "mkdir -p public/images/posts && cp -r posts/images/* public/images/posts/ 2>/dev/null || true",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"

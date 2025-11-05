@@ -43,5 +43,5 @@ next-env.d.ts
 # claude
 CLAUDE.md
 
-# posts
-posts/*.md
+# images (copied from submodule during build)
+public/images/*
