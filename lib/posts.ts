@@ -1,6 +1,8 @@
-import { notion, n2m, DATABASE_ID } from './notion';
+import { n2m, DATABASE_ID } from './notion';
 import { remark } from 'remark';
 import html from 'remark-html';
+
+const NOTION_SECRET = process.env.NOTION_SECRET;
 
 export interface PostData {
   id: string;
@@ -49,26 +51,49 @@ function pageToPost(page: NotionPage): PostData {
   };
 }
 
+// Query Notion database using fetch
+async function queryDatabase(filter?: any, sorts?: any) {
+  const response = await fetch(
+    `https://api.notion.com/v1/databases/${DATABASE_ID}/query`,
+    {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${NOTION_SECRET}`,
+        'Notion-Version': '2022-06-28',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        filter,
+        sorts,
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`Notion API error: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
 export async function getSortedPostsData(): Promise<PostData[]> {
   try {
-    // Use the notion client's request method directly
-    const response: any = await (notion as any).databases.query({
-      database_id: DATABASE_ID,
-      filter: {
+    const data = await queryDatabase(
+      {
         property: 'Status',
         select: {
           equals: 'Published',
         },
       },
-      sorts: [
+      [
         {
           property: 'Date',
           direction: 'descending',
         },
-      ],
-    });
+      ]
+    );
 
-    const posts = response.results.map((page: any) => pageToPost(page));
+    const posts = data.results.map((page: any) => pageToPost(page));
     return posts;
   } catch (error) {
     console.error('Error fetching posts from Notion:', error);
@@ -95,30 +120,27 @@ export async function getPostData(id: string): Promise<PostData> {
       throw new Error(`Post with id ${id} not found`);
     }
 
-    // Find the actual page by querying for slug or using page ID
-    const response: any = await (notion as any).databases.query({
-      database_id: DATABASE_ID,
-      filter: {
-        or: [
-          {
-            property: 'Slug',
-            rich_text: {
-              equals: id,
-            },
+    // Find the actual page by querying for slug
+    const data = await queryDatabase({
+      or: [
+        {
+          property: 'Slug',
+          rich_text: {
+            equals: id,
           },
-          {
-            property: 'slug',
-            rich_text: {
-              equals: id,
-            },
+        },
+        {
+          property: 'slug',
+          rich_text: {
+            equals: id,
           },
-        ],
-      },
+        },
+      ],
     });
 
     let pageId: string;
-    if (response.results.length > 0) {
-      pageId = response.results[0].id;
+    if (data.results.length > 0) {
+      pageId = data.results[0].id;
     } else {
       // Fallback: id might be the page ID itself
       pageId = id;
