@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "mkdir -p public/images/posts && cp -r posts/images/* public/images/posts/ 2>/dev/null || true",
     "dev": "next dev",
     "prebuild": "bash scripts/setup-content.sh",
     "build": "next build",
