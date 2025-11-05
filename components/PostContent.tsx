@@ -14,22 +14,40 @@ export default function PostContent({ content }: PostContentProps) {
   } | null>(null);
 
   useEffect(() => {
-    if (contentRef.current) {
-      const images = contentRef.current.querySelectorAll('img');
+    const handleImageClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'IMG') {
+        const img = target as HTMLImageElement;
+        setZoomedImage({
+          src: img.src,
+          alt: img.alt || '',
+        });
+      }
+    };
+
+    const contentElement = contentRef.current;
+    if (contentElement) {
+      const images = contentElement.querySelectorAll('img');
       images.forEach((img) => {
         img.classList.add('cursor-pointer', 'transition-opacity', 'hover:opacity-80');
-        img.addEventListener('click', () => {
-          setZoomedImage({
-            src: img.src,
-            alt: img.alt || '',
-          });
-        });
       });
+
+      contentElement.addEventListener('click', handleImageClick);
+
+      return () => {
+        contentElement.removeEventListener('click', handleImageClick);
+      };
     }
   }, [content]);
 
   const closeZoom = () => {
     setZoomedImage(null);
+  };
+
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      closeZoom();
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -48,13 +66,13 @@ export default function PostContent({ content }: PostContentProps) {
 
       {zoomedImage && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90 cursor-pointer animate-fadeIn"
-          onClick={closeZoom}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90 cursor-pointer"
+          onClick={handleOverlayClick}
           onKeyDown={handleKeyDown}
           role="button"
           tabIndex={0}
         >
-          <div className="relative max-w-[95vw] max-h-[95vh] p-4">
+          <div className="relative max-w-[95vw] max-h-[95vh] p-4" onClick={(e) => e.stopPropagation()}>
             <img
               src={zoomedImage.src}
               alt={zoomedImage.alt}
