@@ -1,0 +1,41 @@
+name: Sync from Notion
+
+on:
+  workflow_dispatch:
+    inputs:
+      debug:
+        description: 'Enable debug output'
+        required: false
+        default: 'false'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Sync Notion content
+        uses: victornpb/notion-jam@v0.0.10
+        with:
+          NOTION_SECRET: ${{ secrets.NOTION_SECRET }}
+          NOTION_DATABASE: ${{ secrets.NOTION_DATABASE }}
+          FILTER_PROP: 'Status'
+          FILTER_VALUES: 'Published'
+          CONVERT_PROP_CASE: 'snake'
+          ARTICLE_PATH: 'posts/{slug}.md'
+          ASSETS_PATH: './posts/images'
+          PARALLEL_PAGES: 5
+          PARALLEL_DOWNLOADS_PER_PAGE: 3
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add posts/
+          if ! git diff --staged --quiet; then
+            git commit -m "sync: update posts from Notion"
+            git push origin main
+          else
+            echo "No changes to commit"
+          fi
