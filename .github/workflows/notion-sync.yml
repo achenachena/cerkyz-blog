@@ -20,13 +20,12 @@ jobs:
         with:
           NOTION_SECRET: ${{ secrets.NOTION_SECRET }}
           NOTION_DATABASE: ${{ secrets.NOTION_DATABASE }}
-          FILTER_PROP: 'Status'
-          FILTER_VALUES: 'Published'
-          CONVERT_PROP_CASE: 'snake'
           ARTICLE_PATH: 'posts/{slug}.md'
           ASSETS_PATH: './posts/images'
           PARALLEL_PAGES: 5
           PARALLEL_DOWNLOADS_PER_PAGE: 3
+          SKIP_DOWNLOADED_IMAGES: true
+          DOWNLOAD_FRONTMATTER_IMAGES: true
 
       - name: Commit and push changes
         run: |
