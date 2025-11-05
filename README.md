@@ -24,3 +24,5 @@ My personal blog where I write about software development, technology, and other
 ## License
 
 MIT - Feel free to fork and adapt for your own blog!
+
+Auto-deployment test
