@@ -51,7 +51,8 @@ function pageToPost(page: NotionPage): PostData {
 
 export async function getSortedPostsData(): Promise<PostData[]> {
   try {
-    const response = await notion.databases.query({
+    // Use the notion client's request method directly
+    const response: any = await (notion as any).databases.query({
       database_id: DATABASE_ID,
       filter: {
         property: 'Status',
@@ -95,7 +96,7 @@ export async function getPostData(id: string): Promise<PostData> {
     }
 
     // Find the actual page by querying for slug or using page ID
-    const response = await notion.databases.query({
+    const response: any = await (notion as any).databases.query({
       database_id: DATABASE_ID,
       filter: {
         or: [
