@@ -112,7 +112,7 @@ export async function getAllPostIds() {
 
 export async function getPostData(id: string): Promise<PostData> {
   try {
-    // First, get all posts and find the one with matching id
+    // First, get all posts and find the one with matching id (slug)
     const allPosts = await getSortedPostsData();
     const post = allPosts.find((p) => p.id === id);
 
@@ -120,30 +120,39 @@ export async function getPostData(id: string): Promise<PostData> {
       throw new Error(`Post with id ${id} not found`);
     }
 
-    // Find the actual page by querying for slug
+    // Query to find the actual Notion page ID
+    // We need to find the page where Slug property equals our id
     const data = await queryDatabase({
-      or: [
-        {
-          property: 'Slug',
-          rich_text: {
-            equals: id,
-          },
-        },
-        {
-          property: 'slug',
-          rich_text: {
-            equals: id,
-          },
-        },
-      ],
+      property: 'Slug',
+      rich_text: {
+        equals: id,
+      },
     });
 
     let pageId: string;
     if (data.results.length > 0) {
       pageId = data.results[0].id;
     } else {
-      // Fallback: id might be the page ID itself
-      pageId = id;
+      // If not found by slug, try to find by matching the page ID from allPosts
+      // The page ID might be stored directly
+      // We'll need to get the page ID another way - query without filter
+      const allData = await queryDatabase({
+        property: 'Status',
+        select: {
+          equals: 'Published',
+        },
+      });
+
+      const foundPage = allData.results.find((page: any) => {
+        const slug = getPropertyValue(page.properties.Slug || page.properties.slug, 'rich_text');
+        return slug === id;
+      });
+
+      if (!foundPage) {
+        throw new Error(`Could not find Notion page for post ${id}`);
+      }
+
+      pageId = foundPage.id;
     }
 
     // Get the page content
