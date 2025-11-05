@@ -16,10 +16,14 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Sync Notion content
-        uses: victornpb/notion-jam@v0.0.10
+        uses: victornpb/notion-jam@v0.0.13
         with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NOTION_SECRET: ${{ secrets.NOTION_SECRET }}
           NOTION_DATABASE: ${{ secrets.NOTION_DATABASE }}
+          FILTER_PROP: 'Status'
+          FILTER_VALUES: 'Published'
+          CONVERT_PROP_CASE: 'snake'
           ARTICLE_PATH: 'posts/{slug}.md'
           ASSETS_PATH: './posts/images'
           PARALLEL_PAGES: 5
