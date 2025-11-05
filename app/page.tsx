@@ -1,8 +1,8 @@
 import PostList from '@/components/PostList';
 import { getSortedPostsData } from '@/lib/posts';
 
-export default function Home() {
-  const posts = getSortedPostsData();
+export default async function Home() {
+  const posts = await getSortedPostsData();
 
   return (
     <div>

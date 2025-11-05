@@ -7,7 +7,7 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-  const paths = getAllPostIds();
+  const paths = await getAllPostIds();
   return paths.map((path) => ({
     id: path.params.id,
   }));

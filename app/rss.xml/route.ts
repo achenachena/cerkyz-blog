@@ -2,7 +2,7 @@ import { getSortedPostsData } from '@/lib/posts';
 import { SITE_CONFIG } from '@/lib/config';
 
 export async function GET() {
-  const posts = getSortedPostsData();
+  const posts = await getSortedPostsData();
   const siteUrl = process.env.SITE_URL || 'http://localhost:3000';
 
   const rss = `<?xml version="1.0" encoding="UTF-8" ?>
