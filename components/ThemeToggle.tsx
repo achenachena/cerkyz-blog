@@ -7,11 +7,11 @@ export default function ThemeToggle() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-
     // Check localStorage first, then system preference
+    // This is intentionally using setState in useEffect for hydration safety
     const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
 
+    /* eslint-disable react-hooks/set-state-in-effect */
     if (savedTheme) {
       setTheme(savedTheme);
       document.documentElement.classList.toggle('dark', savedTheme === 'dark');
@@ -22,6 +22,10 @@ export default function ThemeToggle() {
       setTheme(systemTheme);
       document.documentElement.classList.toggle('dark', prefersDark);
     }
+
+    // Set mounted after theme is determined
+    setMounted(true);
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
 
   const toggleTheme = () => {

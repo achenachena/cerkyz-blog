@@ -36,14 +36,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-html.dark .text-gray-600 {
-  color: #ffffff !important;
-}
-
-html.dark .text-gray-500 {
-  color: #f3f4f6 !important;
-}
-
 a {
   color: inherit;
   text-decoration: none;

@@ -13,15 +13,50 @@ export interface PostData {
   content?: string;
 }
 
+interface NotionTextContent {
+  plain_text: string;
+}
+
+interface NotionDateProperty {
+  start: string;
+}
+
+interface NotionSelectItem {
+  name: string;
+}
+
+interface NotionProperty {
+  title?: NotionTextContent[];
+  rich_text?: NotionTextContent[];
+  date?: NotionDateProperty;
+  multi_select?: NotionSelectItem[];
+  select?: NotionSelectItem;
+}
+
 interface NotionPage {
   id: string;
   properties: {
-    [key: string]: any;
+    [key: string]: NotionProperty;
   };
 }
 
+interface NotionQueryFilter {
+  property: string;
+  select?: { equals: string };
+  rich_text?: { equals: string };
+}
+
+interface NotionQuerySort {
+  property: string;
+  direction: 'ascending' | 'descending';
+}
+
+interface NotionQueryResponse {
+  results: NotionPage[];
+}
+
 // Helper to extract property values from Notion
-function getPropertyValue(property: any, type: string): any {
+function getPropertyValue(property: NotionProperty, type: string): string | string[] | null {
   switch (type) {
     case 'title':
       return property.title?.[0]?.plain_text || '';
@@ -30,7 +65,7 @@ function getPropertyValue(property: any, type: string): any {
     case 'date':
       return property.date?.start || '';
     case 'multi_select':
-      return property.multi_select?.map((item: any) => item.name) || [];
+      return property.multi_select?.map((item) => item.name) || [];
     case 'select':
       return property.select?.name || '';
     default:
@@ -43,16 +78,19 @@ function pageToPost(page: NotionPage): PostData {
   const props = page.properties;
 
   return {
-    id: getPropertyValue(props.Slug || props.slug, 'rich_text') || page.id,
-    title: getPropertyValue(props.Name || props.name, 'title'),
-    date: getPropertyValue(props.Date || props.date, 'date'),
-    description: getPropertyValue(props.Description || props.description, 'rich_text'),
-    tags: getPropertyValue(props.Tags || props.tags, 'multi_select'),
+    id: (getPropertyValue(props.Slug || props.slug, 'rich_text') as string) || page.id,
+    title: getPropertyValue(props.Name || props.name, 'title') as string,
+    date: getPropertyValue(props.Date || props.date, 'date') as string,
+    description: getPropertyValue(props.Description || props.description, 'rich_text') as string,
+    tags: getPropertyValue(props.Tags || props.tags, 'multi_select') as string[],
   };
 }
 
 // Query Notion database using fetch
-async function queryDatabase(filter?: any, sorts?: any) {
+async function queryDatabase(
+  filter?: NotionQueryFilter,
+  sorts?: NotionQuerySort[]
+): Promise<NotionQueryResponse> {
   const response = await fetch(
     `https://api.notion.com/v1/databases/${DATABASE_ID}/query`,
     {
@@ -73,7 +111,7 @@ async function queryDatabase(filter?: any, sorts?: any) {
     throw new Error(`Notion API error: ${response.statusText}`);
   }
 
-  return response.json();
+  return response.json() as Promise<NotionQueryResponse>;
 }
 
 export async function getSortedPostsData(): Promise<PostData[]> {
@@ -93,7 +131,7 @@ export async function getSortedPostsData(): Promise<PostData[]> {
       ]
     );
 
-    const posts = data.results.map((page: any) => pageToPost(page));
+    const posts = data.results.map((page) => pageToPost(page));
     return posts;
   } catch (error) {
     console.error('Error fetching posts from Notion:', error);
@@ -143,7 +181,7 @@ export async function getPostData(id: string): Promise<PostData> {
         },
       });
 
-      const foundPage = allData.results.find((page: any) => {
+      const foundPage = allData.results.find((page) => {
         const slug = getPropertyValue(page.properties.Slug || page.properties.slug, 'rich_text');
         return slug === id;
       });

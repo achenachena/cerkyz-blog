@@ -31,12 +31,12 @@ export default function SearchClient({ posts }: SearchClientProps) {
           placeholder="Search posts by title, description, or tags..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white focus:border-transparent"
         />
       </div>
 
       {query && (
-        <p className="text-gray-600 mb-6">
+        <p className="text-gray-600 dark:text-white mb-6">
           Found {filteredPosts.length} {filteredPosts.length === 1 ? 'post' : 'posts'}
         </p>
       )}
@@ -44,8 +44,8 @@ export default function SearchClient({ posts }: SearchClientProps) {
       {filteredPosts.length > 0 ? (
         <PostList posts={filteredPosts} />
       ) : (
-        <p className="text-gray-500 text-center py-12">
-          No posts found matching "{query}"
+        <p className="text-gray-500 dark:text-gray-100 text-center py-12">
+          No posts found matching &quot;{query}&quot;
         </p>
       )}
     </div>
