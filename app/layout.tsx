@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
+import ThemeToggle from "@/components/ThemeToggle";
 import { SITE_CONFIG } from "@/lib/config";
 
 const geistSans = Geist({
@@ -33,6 +34,9 @@ export default function RootLayout({
         <main className="max-w-4xl mx-auto px-6 py-8">
           {children}
         </main>
+        <div className="fixed top-[30px] right-6 z-50">
+          <ThemeToggle />
+        </div>
       </body>
     </html>
   );

@@ -5,6 +5,15 @@
   --foreground: #000000;
   --secondary: #666666;
   --border: #e5e5e5;
+  --code-bg: #f5f5f5;
+}
+
+:root.dark {
+  --background: #2b2d31;
+  --foreground: #ffffff;
+  --secondary: #d1d5db;
+  --border: #3f4147;
+  --code-bg: #1e1f22;
 }
 
 @theme inline {
@@ -27,6 +36,14 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+html.dark .text-gray-600 {
+  color: #ffffff !important;
+}
+
+html.dark .text-gray-500 {
+  color: #f3f4f6 !important;
+}
+
 a {
   color: inherit;
   text-decoration: none;
@@ -43,8 +60,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .prose {
-  max-width: 65ch;
-  margin: 0 auto;
+  max-width: none;
 }
 
 .prose h2 {
@@ -73,7 +89,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .prose code {
-  background: #f5f5f5;
+  background: var(--code-bg);
   padding: 0.2em 0.4em;
   border-radius: 3px;
   font-size: 0.9em;
@@ -81,7 +97,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .prose pre {
-  background: #f5f5f5;
+  background: var(--code-bg);
   padding: 1em;
   border-radius: 5px;
   overflow-x: auto;
