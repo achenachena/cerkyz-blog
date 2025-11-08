@@ -15,13 +15,13 @@ export default function PostList({ posts }: PostListProps) {
             <h2 className="text-2xl font-semibold mb-2 hover:opacity-60 transition-opacity">
               {post.title}
             </h2>
-            <time className="text-sm text-gray-500 dark:text-gray-100 block mb-2">
-              {format(new Date(post.date), 'MMMM dd, yyyy')}
-            </time>
-            {post.description && (
-              <p className="text-gray-600 dark:text-white">{post.description}</p>
-            )}
           </Link>
+          <time className="text-sm text-gray-900 dark:text-gray-100 block mb-2">
+            {format(new Date(post.date), 'MMMM dd, yyyy')}
+          </time>
+          {post.description && (
+            <p className="text-gray-900 dark:text-white">{post.description}</p>
+          )}
         </article>
       ))}
     </div>

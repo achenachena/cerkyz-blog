@@ -33,11 +33,11 @@ export default async function Post({ params }: PageProps) {
       <article>
         <header className="mb-6">
           <h1 className="text-4xl font-bold mb-2">{post.title}</h1>
-          <time className="text-sm text-gray-500 dark:text-gray-100 block mb-4">
+          <time className="text-sm text-gray-900 dark:text-gray-100 block mb-4">
             {format(new Date(post.date), 'MMMM dd, yyyy')}
           </time>
           {post.description && (
-            <p className="text-xl text-gray-600 dark:text-white">{post.description}</p>
+            <p className="text-xl text-gray-900 dark:text-white">{post.description}</p>
           )}
         </header>
 
