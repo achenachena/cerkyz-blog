@@ -1,6 +1,6 @@
 # Cerkyz Blog
 
-My personal blog where I write about software development, technology, and other topics that interest me. Built with a minimalist black and white design philosophy that puts content first.
+My personal blog where I write about everything.
 
 🔗 **[Visit the live site](https://cerkzy.xyz)**
 
@@ -9,20 +9,27 @@ My personal blog where I write about software development, technology, and other
 - **Next.js 14+** - React framework with App Router
 - **TypeScript** - Type-safe development
 - **Tailwind CSS** - Utility-first styling
-- **Markdown** - Simple content management
+- **Notion** - Content management system
 
 ## Features
 
-- Minimalist black and white design
-- Markdown-based blog posts with front matter
+- Minimalist design with dark mode support
+- Dark mode toggle with system preference detection
+- Notion-powered content management
 - Tag-based organization
-- Client-side search
-- RSS feed
-- Fully responsive
-- Static site generation for fast loading
+- Client-side search functionality
+- RSS feed support
+- Fully responsive design
+- Static site generation for optimal performance
+- Image zoom on click
 
-## License
+## Writing & Publishing
 
-MIT - Feel free to fork and adapt for your own blog!
+Posts are written in Notion and fetched directly during build:
 
-Auto-deployment test
+1. Write posts in Notion database
+2. Set Status to "Published" when ready
+3. Trigger a deployment (Vercel auto-deploys on git push, or manually trigger)
+4. Blog fetches content directly from Notion API during build
+
+**Note:** All content lives in Notion and is fetched at build time.

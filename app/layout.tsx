@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
+import ThemeToggle from "@/components/ThemeToggle";
 import { SITE_CONFIG } from "@/lib/config";
 
 const geistSans = Geist({
@@ -19,13 +20,18 @@ export const metadata: Metadata = {
   description: SITE_CONFIG.description,
 };
 
+const themeInitScript = `(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')}catch(e){}})()`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
@@ -33,6 +39,9 @@ export default function RootLayout({
         <main className="max-w-4xl mx-auto px-6 py-8">
           {children}
         </main>
+        <div className="fixed top-[30px] right-6 z-50">
+          <ThemeToggle />
+        </div>
       </body>
     </html>
   );

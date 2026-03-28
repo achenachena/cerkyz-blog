@@ -6,8 +6,8 @@ export const metadata = {
   description: 'Search for blog posts',
 };
 
-export default function SearchPage() {
-  const posts = getSortedPostsData();
+export default async function SearchPage() {
+  const posts = await getSortedPostsData();
 
   return (
     <div>
