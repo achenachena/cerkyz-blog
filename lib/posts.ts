@@ -1,8 +1,10 @@
+import { cache } from 'react';
 import { n2m, DATABASE_ID } from './notion';
 import { remark } from 'remark';
 import html from 'remark-html';
 
 const NOTION_SECRET = process.env.NOTION_SECRET;
+const REVALIDATE_SECONDS = 3600;
 
 export interface PostData {
   id: string;
@@ -40,11 +42,13 @@ interface NotionPage {
   };
 }
 
-interface NotionQueryFilter {
+interface NotionPropertyFilter {
   property: string;
   select?: { equals: string };
   rich_text?: { equals: string };
 }
+
+type NotionQueryFilter = NotionPropertyFilter | { and: NotionPropertyFilter[] } | { or: NotionPropertyFilter[] };
 
 interface NotionQuerySort {
   property: string;
@@ -55,7 +59,6 @@ interface NotionQueryResponse {
   results: NotionPage[];
 }
 
-// Helper to extract property values from Notion
 function getPropertyValue(property: NotionProperty, type: string): string | string[] | null {
   switch (type) {
     case 'title':
@@ -73,7 +76,6 @@ function getPropertyValue(property: NotionProperty, type: string): string | stri
   }
 }
 
-// Convert Notion page to PostData
 function pageToPost(page: NotionPage): PostData {
   const props = page.properties;
 
@@ -86,7 +88,6 @@ function pageToPost(page: NotionPage): PostData {
   };
 }
 
-// Query Notion database using fetch
 async function queryDatabase(
   filter?: NotionQueryFilter,
   sorts?: NotionQuerySort[]
@@ -100,10 +101,8 @@ async function queryDatabase(
         'Notion-Version': '2022-06-28',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        filter,
-        sorts,
-      }),
+      body: JSON.stringify({ filter, sorts }),
+      next: { revalidate: REVALIDATE_SECONDS },
     }
   );
 
@@ -114,115 +113,49 @@ async function queryDatabase(
   return response.json() as Promise<NotionQueryResponse>;
 }
 
-export async function getSortedPostsData(): Promise<PostData[]> {
+export const getSortedPostsData = cache(async (): Promise<PostData[]> => {
   try {
     const data = await queryDatabase(
-      {
-        property: 'Status',
-        select: {
-          equals: 'Published',
-        },
-      },
-      [
-        {
-          property: 'Date',
-          direction: 'descending',
-        },
-      ]
+      { property: 'Status', select: { equals: 'Published' } },
+      [{ property: 'Date', direction: 'descending' }]
     );
 
-    const posts = data.results.map((page) => pageToPost(page));
-    return posts;
+    return data.results.map(pageToPost);
   } catch (error) {
     console.error('Error fetching posts from Notion:', error);
     return [];
   }
-}
+});
 
-export async function getAllPostIds() {
+export const getAllPostIds = async () => {
   const posts = await getSortedPostsData();
   return posts.map((post) => ({
-    params: {
-      id: post.id,
-    },
+    params: { id: post.id },
   }));
-}
+};
 
-export async function getPostData(id: string): Promise<PostData> {
-  try {
-    // First, get all posts and find the one with matching id (slug)
-    const allPosts = await getSortedPostsData();
-    const post = allPosts.find((p) => p.id === id);
-
-    if (!post) {
-      throw new Error(`Post with id ${id} not found`);
-    }
-
-    // Query to find the actual Notion page ID
-    // We need to find the page where Slug property equals our id
-    const data = await queryDatabase({
-      property: 'Slug',
-      rich_text: {
-        equals: id,
-      },
-    });
-
-    let pageId: string;
-    if (data.results.length > 0) {
-      pageId = data.results[0].id;
-    } else {
-      // If not found by slug, try to find by matching the page ID from allPosts
-      // The page ID might be stored directly
-      // We'll need to get the page ID another way - query without filter
-      const allData = await queryDatabase({
-        property: 'Status',
-        select: {
-          equals: 'Published',
-        },
-      });
-
-      const foundPage = allData.results.find((page) => {
-        const slug = getPropertyValue(page.properties.Slug || page.properties.slug, 'rich_text');
-        return slug === id;
-      });
-
-      if (!foundPage) {
-        throw new Error(`Could not find Notion page for post ${id}`);
-      }
-
-      pageId = foundPage.id;
-    }
-
-    // Get the page content
-    const mdBlocks = await n2m.pageToMarkdown(pageId);
-    const mdString = n2m.toMarkdownString(mdBlocks);
-
-    // Convert markdown to HTML
-    const processedContent = await remark()
-      .use(html)
-      .process(mdString.parent);
-    const contentHtml = processedContent.toString();
-
-    return {
-      ...post,
-      content: contentHtml,
-    };
-  } catch (error) {
-    console.error(`Error fetching post ${id}:`, error);
-    throw error;
-  }
-}
-
-export async function getPostsByTag(tag: string): Promise<PostData[]> {
-  const allPosts = await getSortedPostsData();
-  return allPosts.filter((post) => post.tags?.includes(tag));
-}
-
-export async function getAllTags(): Promise<string[]> {
-  const allPosts = await getSortedPostsData();
-  const tags = new Set<string>();
-  allPosts.forEach((post) => {
-    post.tags?.forEach((tag) => tags.add(tag));
+export const getPostData = cache(async (id: string): Promise<PostData> => {
+  const data = await queryDatabase({
+    and: [
+      { property: 'Slug', rich_text: { equals: id } },
+      { property: 'Status', select: { equals: 'Published' } },
+    ],
   });
-  return Array.from(tags).sort();
-}
+
+  if (data.results.length === 0) {
+    throw new Error(`Post with id ${id} not found`);
+  }
+
+  const page = data.results[0];
+  const post = pageToPost(page);
+
+  const mdBlocks = await n2m.pageToMarkdown(page.id);
+  const mdString = n2m.toMarkdownString(mdBlocks);
+
+  const processedContent = await remark().use(html).process(mdString.parent);
+
+  return {
+    ...post,
+    content: processedContent.toString(),
+  };
+});

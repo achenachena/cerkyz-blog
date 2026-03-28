@@ -14,46 +14,34 @@ export default function PostContent({ content }: PostContentProps) {
   } | null>(null);
 
   useEffect(() => {
+    const contentElement = contentRef.current;
+    if (!contentElement) return;
+
+    const images = contentElement.querySelectorAll('img');
+    images.forEach((img) => {
+      img.classList.add('cursor-pointer', 'transition-opacity', 'hover:opacity-80');
+    });
+
     const handleImageClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       if (target.tagName === 'IMG') {
         const img = target as HTMLImageElement;
-        setZoomedImage({
-          src: img.src,
-          alt: img.alt || '',
-        });
+        setZoomedImage({ src: img.src, alt: img.alt || '' });
       }
     };
 
-    const contentElement = contentRef.current;
-    if (contentElement) {
-      const images = contentElement.querySelectorAll('img');
-      images.forEach((img) => {
-        img.classList.add('cursor-pointer', 'transition-opacity', 'hover:opacity-80');
-      });
-
-      contentElement.addEventListener('click', handleImageClick);
-
-      return () => {
-        contentElement.removeEventListener('click', handleImageClick);
-      };
-    }
+    contentElement.addEventListener('click', handleImageClick);
+    return () => contentElement.removeEventListener('click', handleImageClick);
   }, [content]);
 
-  const closeZoom = () => {
-    setZoomedImage(null);
-  };
+  const handleCloseZoom = () => setZoomedImage(null);
 
   const handleOverlayClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      closeZoom();
-    }
+    if (e.target === e.currentTarget) handleCloseZoom();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      closeZoom();
-    }
+    if (e.key === 'Escape') handleCloseZoom();
   };
 
   return (
@@ -66,11 +54,12 @@ export default function PostContent({ content }: PostContentProps) {
 
       {zoomedImage && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90 cursor-pointer"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 cursor-pointer"
           onClick={handleOverlayClick}
           onKeyDown={handleKeyDown}
           role="button"
           tabIndex={0}
+          aria-label="Close image zoom"
         >
           <div className="relative max-w-[95vw] max-h-[95vh] p-4" onClick={(e) => e.stopPropagation()}>
             <img
@@ -80,7 +69,7 @@ export default function PostContent({ content }: PostContentProps) {
             />
             <button
               className="absolute top-2 right-2 text-white text-4xl leading-none hover:opacity-80 transition-opacity"
-              onClick={closeZoom}
+              onClick={handleCloseZoom}
               aria-label="Close"
             >
               ×

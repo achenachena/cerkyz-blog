@@ -4,6 +4,16 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
 
+interface NotionImageBlock {
+  type: 'image';
+  image: {
+    type: 'file' | 'external';
+    file?: { url: string };
+    external?: { url: string };
+    caption?: Array<{ plain_text: string }>;
+  };
+}
+
 if (!process.env.NOTION_SECRET) {
   throw new Error('NOTION_SECRET environment variable is not set');
 }
@@ -61,7 +71,7 @@ async function downloadImage(url: string): Promise<string> {
 
 // Set up custom image transformer
 n2m.setCustomTransformer('image', async (block) => {
-  const { image } = block as any;
+  const { image } = block as unknown as NotionImageBlock;
   if (!image) return '';
 
   // Get the image URL from Notion
