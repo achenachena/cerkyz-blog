@@ -21,7 +21,15 @@ interface NotionProperty {
 export interface NotionPage {
   id: string;
   created_time: string;
+  last_edited_time?: string;
   properties: Record<string, NotionProperty>;
+}
+
+// A new key on edits avoids stale-while-revalidate for changed articles.
+// Rotate on demand every 30 minutes, before Notion's one-hour image URLs expire.
+export function getPostContentCacheKey(page: NotionPage, now = Date.now()): string[] | null {
+  if (!page.last_edited_time) return null;
+  return ['notion-post-html-v1', page.id, page.last_edited_time, String(Math.floor(now / 1_800_000))];
 }
 
 interface QueryResponse {
