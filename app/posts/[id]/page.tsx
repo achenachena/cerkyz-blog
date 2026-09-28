@@ -40,7 +40,7 @@ export default async function Post({ params }: PageProps) {
       </article>
 
       <div className="mt-12 pt-6 border-t border-gray-200 dark:border-gray-700">
-        <Link href="/" className="text-sm text-gray-500 dark:text-gray-100 hover:opacity-60">
+        <Link href="/" prefetch={true} className="text-sm text-gray-500 dark:text-gray-100 hover:opacity-60">
           ← Back to home
         </Link>
       </div>
