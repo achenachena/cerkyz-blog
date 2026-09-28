@@ -1,12 +1,22 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { getPublishedNotionPages, pageToPost } from '../lib/notion-data.ts';
+import { getPublishedNotionPages, getPostContentCacheKey, pageToPost } from '../lib/notion-data.ts';
 
 const page = {
   id: 'page-id',
   created_time: '2026-09-28T00:00:00.000Z',
   properties: {},
 };
+
+test('body cache changes immediately with edits and rotates before image expiry', () => {
+  const original = { ...page, last_edited_time: '2026-09-28T00:00:00.000Z' };
+  const edited = { ...original, last_edited_time: '2026-09-28T00:01:00.000Z' };
+  assert.deepEqual(getPostContentCacheKey(original, 0), getPostContentCacheKey(original, 1000));
+  assert.notDeepEqual(getPostContentCacheKey(original, 0), getPostContentCacheKey(edited, 0));
+  assert.notDeepEqual(getPostContentCacheKey(original, 0), getPostContentCacheKey(original, 1_800_000));
+  assert.notDeepEqual(getPostContentCacheKey(original, 0), getPostContentCacheKey({ ...original, id: 'other' }, 0));
+  assert.equal(getPostContentCacheKey(page), null);
+});
 
 test('missing optional properties and slug remain accessible with page ID', () => {
   assert.deepEqual(pageToPost(page), {

@@ -25,7 +25,7 @@ My personal blog where I write about everything.
 
 ## Writing & Publishing
 
-Posts are read directly from Notion on each request. No cron job, webhook, or redeployment is required for content changes.
+Publication status and metadata are read directly from Notion on each request. Article HTML is cached by page ID and Notion’s `last_edited_time`, so unchanged articles avoid repeated block requests and Markdown conversion; edits select a new cache entry immediately. No cron job, webhook, or redeployment is required for content changes.
 
 1. Create a page in the connected Notion database.
 2. Fill in `Name` (title), `Slug` (unique URL segment), and `Date`. `Description` and `Tags` are optional.
@@ -35,7 +35,7 @@ Posts are read directly from Notion on each request. No cron job, webhook, or re
 
 Changing a published article updates it on the next request. Changing its status away from `Published` removes it from listings and makes its URL return 404. Already-open browser pages need a refresh; RSS readers control their own refresh schedule. Notion API availability and latency affect page loading.
 
-Images use fresh Notion URLs fetched with the article, without writing to the deployment filesystem. If an image URL expires in a long-open tab, refresh the article.
+Image URLs are fetched with each new article body. Body cache keys rotate on requests every 30 minutes, before Notion’s one-hour image URLs expire; no scheduled job is used. Images are not written to the deployment filesystem. If an image URL expires in a long-open tab, refresh the article.
 
 ## Deployment
 
