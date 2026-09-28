@@ -33,7 +33,7 @@ Publication status and metadata are read directly from Notion on each request. A
 4. Set `Status` (a Select property) to exactly `Published`.
 5. Open or refresh the blog. The homepage, search, article, and RSS read the latest published content.
 
-Changing a published article updates it on the next request. Changing its status away from `Published` removes it from listings and makes its URL return 404. Already-open browser pages need a refresh; RSS readers control their own refresh schedule. Notion API availability and latency affect page loading.
+Changing a published article updates it on the next server request. Changing its status away from `Published` removes it from fresh listings and makes fresh requests to its URL return 404. Visible article links and home/search links prefetch their destination; the browser reuses prefetched or visited pages for 30 seconds to make navigation fast. During that window a tab can still show an earlier version, including an article just unpublished. Refresh the browser to immediately check Notion. Browser back/forward may also restore an earlier view. RSS readers control their own refresh schedule. Notion API availability and latency affect first visits and cache misses.
 
 Image URLs are fetched with each new article body. Body cache keys rotate on requests every 30 minutes, before Notion’s one-hour image URLs expire; no scheduled job is used. Images are not written to the deployment filesystem. If an image URL expires in a long-open tab, refresh the article.
 

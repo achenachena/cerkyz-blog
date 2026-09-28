@@ -11,7 +11,7 @@ export default function PostList({ posts }: PostListProps) {
     <div className="space-y-8">
       {posts.map((post) => (
         <article key={post.id} className="border-b border-gray-200 dark:border-gray-700 pb-8">
-          <Link href={`/posts/${post.id}`}>
+          <Link href={`/posts/${post.id}`} prefetch={true}>
             <h2 className="text-2xl font-semibold mb-2 hover:opacity-60 transition-opacity">
               {post.title}
             </h2>
