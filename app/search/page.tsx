@@ -1,6 +1,8 @@
 import { getSortedPostsData } from '@/lib/posts';
 import SearchClient from '@/components/SearchClient';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: "Search | Cerkyz's blog",
   description: 'Search for blog posts',

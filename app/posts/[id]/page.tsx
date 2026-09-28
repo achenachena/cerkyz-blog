@@ -1,4 +1,4 @@
-import { getPostData, getAllPostIds } from '@/lib/posts';
+import { getPostData } from '@/lib/posts';
 import { format } from 'date-fns';
 import PostContent from '@/components/PostContent';
 import Link from 'next/link';
@@ -7,12 +7,7 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-export async function generateStaticParams() {
-  const paths = await getAllPostIds();
-  return paths.map((path) => ({
-    id: path.params.id,
-  }));
-}
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }: PageProps) {
   const { id } = await params;

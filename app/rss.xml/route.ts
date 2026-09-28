@@ -1,6 +1,8 @@
 import { getSortedPostsData } from '@/lib/posts';
 import { SITE_CONFIG } from '@/lib/config';
 
+export const dynamic = 'force-dynamic';
+
 function escapeXml(unsafe: string): string {
   return unsafe.replace(/[<>&'"]/g, (c) => {
     switch (c) {
@@ -22,7 +24,7 @@ function escapeXml(unsafe: string): string {
 
 export async function GET() {
   const posts = await getSortedPostsData();
-  const siteUrl = process.env.SITE_URL || 'http://localhost:3000';
+  const siteUrl = process.env.SITE_URL || 'https://cerkzy.xyz';
 
   const rss = `<?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
@@ -52,7 +54,7 @@ export async function GET() {
   return new Response(rss, {
     headers: {
       'Content-Type': 'application/xml',
-      'Cache-Control': 'public, max-age=3600, s-maxage=3600',
+      'Cache-Control': 'no-store',
     },
   });
 }
