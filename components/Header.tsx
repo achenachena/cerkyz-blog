@@ -11,7 +11,7 @@ export default function Header() {
           </Link>
           <nav className="flex gap-6 text-sm items-center">
             <Link href="/search" prefetch={true} className="hover:opacity-60">Search</Link>
-            <Link href="/rss.xml" className="hover:opacity-60">RSS</Link>
+            <a href="/rss.xml" className="hover:opacity-60">RSS</a>
           </nav>
         </div>
       </div>

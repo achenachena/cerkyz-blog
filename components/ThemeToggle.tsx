@@ -1,63 +1,24 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-
 export default function ThemeToggle() {
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    // Check localStorage first, then system preference
-    // This is intentionally using setState in useEffect for hydration safety
-    const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
-
-    /* eslint-disable react-hooks/set-state-in-effect */
-    if (savedTheme) {
-      setTheme(savedTheme);
-      document.documentElement.classList.toggle('dark', savedTheme === 'dark');
-    } else {
-      // Use system preference
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const systemTheme = prefersDark ? 'dark' : 'light';
-      setTheme(systemTheme);
-      document.documentElement.classList.toggle('dark', prefersDark);
-    }
-
-    // Set mounted after theme is determined
-    setMounted(true);
-    /* eslint-enable react-hooks/set-state-in-effect */
-  }, []);
-
   const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
-    document.documentElement.classList.toggle('dark', newTheme === 'dark');
+    const dark = document.documentElement.classList.toggle('dark');
+    try {
+      localStorage.setItem('theme', dark ? 'dark' : 'light');
+    } catch {
+      // The toggle still works when the browser blocks local storage.
+    }
   };
-
-  // Don't render until mounted to avoid hydration mismatch
-  if (!mounted) {
-    return <div className="w-8 h-8" />;
-  }
 
   return (
     <button
+      type="button"
       onClick={toggleTheme}
-      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors p-0.5 ${
-        theme === 'dark' ? 'bg-white' : 'bg-black'
-      }`}
+      className="relative inline-flex h-6 w-11 items-center rounded-full bg-black p-0.5 transition-colors dark:bg-white"
       aria-label="Toggle theme"
     >
-      <span
-        className={`inline-block h-5 w-5 transform rounded-full transition-transform flex items-center justify-center ${
-          theme === 'dark' ? 'translate-x-5 bg-black' : 'translate-x-0 bg-white'
-        }`}
-      >
-        <svg
-          className={`h-3 w-3 ${theme === 'dark' ? 'text-white' : 'text-black'}`}
-          fill="currentColor"
-          viewBox="0 0 20 20"
-        >
+      <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white text-black transition-transform dark:translate-x-5 dark:bg-black dark:text-white">
+        <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
           <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
         </svg>
       </span>

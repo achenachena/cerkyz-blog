@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   description: SITE_CONFIG.description,
 };
 
-const themeInitScript = `(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')}catch(e){}})()`;
+const themeInitScript = `(function(){var t;try{t=localStorage.getItem('theme')}catch(e){}var dark=t==='dark'||(t!=='light'&&matchMedia('(prefers-color-scheme:dark)').matches);document.documentElement.classList.toggle('dark',dark)})()`;
 
 export default function RootLayout({
   children,

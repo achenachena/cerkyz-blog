@@ -41,7 +41,7 @@ Image URLs are fetched with each new article body. Body cache keys rotate on req
 
 Vercel production uses the `main` branch. Code and dependency changes require a deployment; article changes do not. Configure `NOTION_SECRET` and `NOTION_DATABASE` in Vercel for each environment. `SITE_URL` is optional and defaults to `https://cerkzy.xyz` for RSS.
 
-Use a supported, patched Next.js release: Vercel rejects vulnerable versions (the old 16.0.1 deployment failed with `VULNERABLE_NEXTJS_VERSION`).
+Copy `.env.example` to `.env.local` for local development and fill in the Notion credentials. Never commit credentials.
 
 ## Validation
 

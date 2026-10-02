@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 
 interface PostContentProps {
   content: string;
@@ -8,75 +9,58 @@ interface PostContentProps {
 
 export default function PostContent({ content }: PostContentProps) {
   const contentRef = useRef<HTMLDivElement>(null);
-  const [zoomedImage, setZoomedImage] = useState<{
-    src: string;
-    alt: string;
-  } | null>(null);
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const [zoomedImage, setZoomedImage] = useState<{ src: string; alt: string } | null>(null);
 
   useEffect(() => {
-    const contentElement = contentRef.current;
-    if (!contentElement) return;
+    const element = contentRef.current;
+    if (!element) return;
 
-    const images = contentElement.querySelectorAll('img');
-    images.forEach((img) => {
-      img.classList.add('cursor-pointer', 'transition-opacity', 'hover:opacity-80');
-    });
-
-    const handleImageClick = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (target.tagName === 'IMG') {
-        const img = target as HTMLImageElement;
-        setZoomedImage({ src: img.src, alt: img.alt || '' });
+    const handleImageClick = (event: MouseEvent) => {
+      if (event.target instanceof HTMLImageElement) {
+        setZoomedImage({ src: event.target.src, alt: event.target.alt });
       }
     };
+    element.addEventListener('click', handleImageClick);
+    return () => element.removeEventListener('click', handleImageClick);
+  }, []);
 
-    contentElement.addEventListener('click', handleImageClick);
-    return () => contentElement.removeEventListener('click', handleImageClick);
-  }, [content]);
-
-  const handleCloseZoom = () => setZoomedImage(null);
-
-  const handleOverlayClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) handleCloseZoom();
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') handleCloseZoom();
-  };
+  useEffect(() => {
+    if (zoomedImage) dialogRef.current?.showModal();
+  }, [zoomedImage]);
 
   return (
     <>
-      <div
-        ref={contentRef}
-        className="prose prose-lg max-w-none"
-        dangerouslySetInnerHTML={{ __html: content }}
-      />
-
-      {zoomedImage && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 cursor-pointer"
-          onClick={handleOverlayClick}
-          onKeyDown={handleKeyDown}
-          role="button"
-          tabIndex={0}
+      <div ref={contentRef} className="prose" dangerouslySetInnerHTML={{ __html: content }} />
+      <dialog
+        ref={dialogRef}
+        className="fixed inset-0 m-auto max-h-[95vh] max-w-[95vw] overflow-visible border-0 bg-transparent p-4 backdrop:bg-black/90"
+        aria-label="Enlarged image"
+        onClose={() => setZoomedImage(null)}
+        onClick={(event) => {
+          if (event.target === event.currentTarget) dialogRef.current?.close();
+        }}
+      >
+        {zoomedImage && (
+          <Image
+            src={zoomedImage.src}
+            alt={zoomedImage.alt}
+            width={1600}
+            height={1000}
+            unoptimized
+            className="h-auto max-h-[90vh] w-auto max-w-full object-contain"
+          />
+        )}
+        <button
+          type="button"
+          autoFocus
+          className="absolute right-2 top-2 text-4xl leading-none text-white hover:opacity-80"
+          onClick={() => dialogRef.current?.close()}
           aria-label="Close image zoom"
         >
-          <div className="relative max-w-[95vw] max-h-[95vh] p-4" onClick={(e) => e.stopPropagation()}>
-            <img
-              src={zoomedImage.src}
-              alt={zoomedImage.alt}
-              className="max-w-full max-h-[90vh] object-contain"
-            />
-            <button
-              className="absolute top-2 right-2 text-white text-4xl leading-none hover:opacity-80 transition-opacity"
-              onClick={handleCloseZoom}
-              aria-label="Close"
-            >
-              ×
-            </button>
-          </div>
-        </div>
-      )}
+          ×
+        </button>
+      </dialog>
     </>
   );
 }

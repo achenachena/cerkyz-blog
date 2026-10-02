@@ -1,6 +1,6 @@
 import Link from 'next/link';
-import { PostData } from '@/lib/posts';
-import { format } from 'date-fns';
+import type { PostData } from '@/lib/notion-data';
+import { formatPostDate } from '@/lib/date';
 
 interface PostListProps {
   posts: PostData[];
@@ -17,7 +17,7 @@ export default function PostList({ posts }: PostListProps) {
             </h2>
           </Link>
           <time className="text-sm text-gray-900 dark:text-gray-100 block mb-2">
-            {format(new Date(post.date), 'MMMM dd, yyyy')}
+            {formatPostDate(post.date)}
           </time>
           {post.description && (
             <p className="text-gray-900 dark:text-white">{post.description}</p>
