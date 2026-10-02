@@ -1,12 +1,18 @@
 import { cache } from 'react';
 import { unstable_cache } from 'next/cache';
 import { notFound } from 'next/navigation';
-import { n2m } from './notion';
+import { Client } from '@notionhq/client';
+import { NotionToMarkdown } from 'notion-to-md';
 import { getPublishedNotionPages, getPostContentCacheKey, pageToPost, type PostData } from './notion-data';
 import { remark } from 'remark';
 import html from 'remark-html';
 
-export type { PostData } from './notion-data';
+const n2m = new NotionToMarkdown({
+  notionClient: new Client({
+    auth: process.env.NOTION_SECRET,
+    fetch: (url, init) => fetch(url, { ...init, cache: 'no-store' }),
+  }),
+});
 
 // React cache only deduplicates work within the current render, not across visits.
 const getPublishedPages = cache(getPublishedNotionPages);

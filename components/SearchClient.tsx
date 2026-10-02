@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import PostList from './PostList';
-import { PostData } from '@/lib/posts';
+import type { PostData } from '@/lib/notion-data';
 
 interface SearchClientProps {
   posts: PostData[];
